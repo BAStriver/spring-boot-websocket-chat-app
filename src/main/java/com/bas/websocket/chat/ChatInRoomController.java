@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @Slf4j
-public class ChatToUserController {
+public class ChatInRoomController {
     @MessageMapping("/chat/{roomId}")
     @SendTo("/topic/chat/{roomId}")
     public ChatMessage sendMessage(@DestinationVariable String roomId, ChatMessage message) {
