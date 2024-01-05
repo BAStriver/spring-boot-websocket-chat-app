@@ -18,7 +18,10 @@ public class ChatInRoomController {
         return message;
     }
 
-    @MessageMapping("/chat.addUserToRoom")
+    // if need the {roomId} in @SendTo,
+    // then should add {roomId} in @MessageMapping and sent roomId from front end.
+    // otherwise, it could not resolve placeholder 'roomId' in value "/topic/chat/{roomId} of @SendTo
+    @MessageMapping("/chat.addUserToRoom/{roomId}")
     @SendTo("/topic/chat/{roomId}")
     public ChatMessage addUser(
             @Payload ChatMessage chatMessage,

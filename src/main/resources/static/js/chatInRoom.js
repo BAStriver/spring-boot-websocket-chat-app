@@ -39,7 +39,7 @@ function onConnected() {
     stompClient.subscribe('/topic/chat/'+room, onMessageReceived);
 
     // Tell your username to the server
-    stompClient.send("/app/chat.addUserToRoom", // prefix with /app
+    stompClient.send("/app/chat.addUserToRoom/"+room, // prefix with /app
         {},
         JSON.stringify({sender: username, type: 'JOIN'})
     )
