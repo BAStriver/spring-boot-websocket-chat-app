@@ -27,6 +27,7 @@ public class WebSocketEventListener {
                     .type(MessageType.LEAVE)
                     .sender(username)
                     .build();
+            // send the disconnected notifications to the subscribers
             messagingTemplate.convertAndSend("/topic/public", chatMessage);
         }
     }
