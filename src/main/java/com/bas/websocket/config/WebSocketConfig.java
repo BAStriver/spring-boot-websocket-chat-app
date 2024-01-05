@@ -14,7 +14,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws") // this is the endpoint which should be set in SockJS client
-                .setAllowedOrigins("*") // allow cross-domain request
+                .setAllowedOriginPatterns("*") // allow cross-domain request
                 .withSockJS(); // use SockJS protocol
     }
 
