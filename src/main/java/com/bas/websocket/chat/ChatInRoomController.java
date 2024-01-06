@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 public class ChatInRoomController {
     @MessageMapping("/chat/{roomId}")
-    @SendTo("/topic/chat/{roomId}")
+    @SendTo("/topic/chat/{roomId}") // if not add @SendTo, then by default will send to the path /topic/chat/{roomId}
     public ChatMessage sendMessage(@DestinationVariable String roomId, ChatMessage message) {
         log.info("roomId: {}", roomId);
         return message;
