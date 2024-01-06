@@ -2,11 +2,10 @@ package com.bas.websocket.chat;
 
 import lombok.*;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Data
 public class ChatMessage {
 
     private MessageType type;

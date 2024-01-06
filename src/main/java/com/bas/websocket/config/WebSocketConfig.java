@@ -1,6 +1,7 @@
 package com.bas.websocket.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -30,5 +31,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // while sending messages to user in front end, the path should add the prefix as /user
         // default is /user
         registry.setUserDestinationPrefix("/user");
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new UserAuthenticationChannelInterceptor());
     }
 }
