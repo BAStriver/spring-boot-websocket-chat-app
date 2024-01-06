@@ -25,8 +25,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // while sending messages in front end, the path should add the prefix as /app
         registry.setApplicationDestinationPrefixes("/app");
 
-        // set the prefixes of broker paths, like /topic/public
-        registry.enableSimpleBroker("/topic");
+        // enable and set the prefixes of broker paths, like /topic/public
+        // without this prefix, it will block those sent messages
+        registry.enableSimpleBroker("/topic", "/user");
 
         // while sending messages to user in front end, the path should add the prefix as /user
         // default is /user
