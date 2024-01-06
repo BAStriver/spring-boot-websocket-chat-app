@@ -23,10 +23,13 @@ function connect(event) {
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
 
+        const header = {"User-ID": new Date().getTime().toString(),
+            "User-Name": username};
+
         var socket = new SockJS('/ws'); // set the STOMP endpoint
         stompClient = Stomp.over(socket);
 
-        stompClient.connect({}, onConnected, onError);
+        stompClient.connect(header, onConnected, onError);
     }
     event.preventDefault();
 }
