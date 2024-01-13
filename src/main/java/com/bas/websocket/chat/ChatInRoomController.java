@@ -14,7 +14,7 @@ public class ChatInRoomController {
     @MessageMapping("/chat/{roomId}")
     @SendTo("/topic/chat/{roomId}") // if not add @SendTo, then by default will send to the path /topic/chat/{roomId}
     public ChatMessage sendMessage(@DestinationVariable String roomId, ChatMessage message) {
-        log.info("roomId: {}", roomId);
+        log.info("roomId: {}, {}", roomId, message);
         return message;
     }
 
@@ -27,6 +27,7 @@ public class ChatInRoomController {
             @Payload ChatMessage chatMessage,
             SimpMessageHeaderAccessor headerAccessor
     ) {
+        log.info("addUserToRoom: {}", chatMessage);
         // Add username in web socket session
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         return chatMessage;
