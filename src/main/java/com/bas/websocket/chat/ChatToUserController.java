@@ -92,7 +92,7 @@ public class ChatToUserController {
 
     @Scheduled(fixedRate = 10 * 1000)
     public void pushMessageAtFixedRate() {
-        log.info("current user amount: {}", simpUserRegistry.getUserCount());
+        log.info("current user amounts: {}", simpUserRegistry.getUserCount());
         if (simpUserRegistry.getUserCount() <= 0) {
             return;
         }
