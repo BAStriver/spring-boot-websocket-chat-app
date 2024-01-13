@@ -11,15 +11,20 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
 @Slf4j
+@EnableScheduling
 public class ChatToUserController {
 
     private final SimpUserRegistry simpUserRegistry;
@@ -68,11 +73,43 @@ public class ChatToUserController {
         simpMessagingTemplate.convertAndSend("/topic/public", message);
     }
 
+    @MessageMapping("/chat/group")
+    @SendTo("/topic/chat/group")
+    public ChatMessage groupChat(ChatMessage message) {
+        log.info("Group chat message received: {}", message);
+        return message;
+    }
     @MessageMapping("/chat/private")
     @SendToUser("/topic/chat/private")
-    public ChatMessage privateChat(ChatMessage message) {
+    public ChatMessage privateChat(ChatMessage message,
+                                   SimpMessageHeaderAccessor headerAccessor) {
         log.info("Private chat message received: {}", message);
+        StompAuthenticatedUser stompAuthenticatedUser=(StompAuthenticatedUser)headerAccessor.getHeader("simpUser");
+        simpMessagingTemplate.convertAndSendToUser(Objects.requireNonNull(stompAuthenticatedUser).getUserId(),
+                "/topic/chat/private", message);
         return message;
+    }
+
+    @Scheduled(fixedRate = 10 * 1000)
+    public void pushMessageAtFixedRate() {
+        log.info("current user amount: {}", simpUserRegistry.getUserCount());
+        if (simpUserRegistry.getUserCount() <= 0) {
+            return;
+        }
+
+        Set<StompAuthenticatedUser> users = simpUserRegistry.getUsers().stream()
+                .map(simpUser -> StompAuthenticatedUser.class.cast(simpUser.getPrincipal()))
+                .collect(Collectors.toSet());
+
+        users.forEach(authenticatedUser -> {
+            String userId = authenticatedUser.getUserId();
+            String nickName = authenticatedUser.getNickName();
+            ChatMessage message = new ChatMessage();
+            message.setContent(String.format("scheduled send msg to users, receiver: %s, on: %s", nickName, LocalDateTime.now()));
+
+            log.info("sent msg to the user with userId: {}, contents: {}", userId, message);
+            simpMessagingTemplate.convertAndSendToUser(userId, "/topic/chat/push", message);
+        });
     }
 
 }

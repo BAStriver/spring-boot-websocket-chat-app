@@ -19,8 +19,8 @@ public class UserAuthenticationChannelInterceptor implements ChannelInterceptor 
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            String userID = accessor.getFirstNativeHeader(USER_ID);
-            String username = accessor.getFirstNativeHeader(USER_NAME);
+            String userID = accessor.getFirstNativeHeader(USER_ID); // always different after every connections
+            String username = accessor.getFirstNativeHeader(USER_NAME); // user name + user unique id
 
             log.info("Stomp User-Related headers found, userID: {}, username:{}", userID, username);
             accessor.setUser(new StompAuthenticatedUser(userID, username));
