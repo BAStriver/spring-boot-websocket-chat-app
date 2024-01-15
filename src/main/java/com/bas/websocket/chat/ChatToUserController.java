@@ -81,16 +81,31 @@ public class ChatToUserController {
     }
     @MessageMapping("/chat/private")
     @SendToUser("/topic/chat/private")
-    public ChatMessage privateChat(ChatMessage message,
-                                   SimpMessageHeaderAccessor headerAccessor) {
+    public ChatMessage privateChat(ChatMessage message) {
         log.info("Private chat message received: {}", message);
-        StompAuthenticatedUser stompAuthenticatedUser=(StompAuthenticatedUser)headerAccessor.getHeader("simpUser");
-        simpMessagingTemplate.convertAndSendToUser(Objects.requireNonNull(stompAuthenticatedUser).getUserId(),
+        simpMessagingTemplate.convertAndSendToUser(findUserIdByUserName(message.getReceiver()),
                 "/topic/chat/private", message);
         return message;
     }
 
-    @Scheduled(fixedRate = 10 * 1000)
+    private String findUserIdByUserName(String userName) {
+        if(null != userName) {
+            Set<StompAuthenticatedUser> users = simpUserRegistry.getUsers().stream()
+                    .map(simpUser -> (StompAuthenticatedUser) simpUser.getPrincipal())
+                    .collect(Collectors.toSet());
+
+            for (StompAuthenticatedUser user : users) {
+                String nickName = user.getNickName();
+                if (userName.equals(nickName)) {
+                    log.info("found userId: {}", user.getUserId());
+                    return user.getUserId();
+                }
+            }
+        }
+        return "";
+    }
+    
+    @Scheduled(fixedRate = 60 * 1000)
     public void pushMessageAtFixedRate() {
         log.info("current user amounts: {}", simpUserRegistry.getUserCount());
         if (simpUserRegistry.getUserCount() <= 0) {
@@ -105,7 +120,10 @@ public class ChatToUserController {
             String userId = authenticatedUser.getUserId();
             String nickName = authenticatedUser.getNickName();
             ChatMessage message = new ChatMessage();
+            message.setType(MessageType.CHAT);
             message.setContent(String.format("scheduled send msg to users, receiver: %s, on: %s", nickName, LocalDateTime.now()));
+            message.setSender(nickName);
+            message.setReceiver(nickName);
 
             log.info("sent msg to the user with userId: {}, contents: {}", userId, message);
             simpMessagingTemplate.convertAndSendToUser(userId, "/topic/chat/push", message);

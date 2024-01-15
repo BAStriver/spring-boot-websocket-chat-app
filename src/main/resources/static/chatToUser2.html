@@ -84,14 +84,14 @@
     }
 
     const sendGroupMessage = () => {
-        const msg = {name: $('#username').val(), content: $('#msgSent').val()};
-        console.log('msg: ',msg);
+        const msg = {sender: $('#username').val(), content: $('#msgSent').val(), type: 'CHAT', receiver: $('#username').val()};
+        console.log('group msg: ',msg);
         stompClient.send('/app/chat/group', {}, JSON.stringify(msg));
     }
 
     const sendPrivateMessage = () => {
-        const msg = {sender: $('#username').val(), content: $('#msgSent').val(),  type: 'CHAT'};
-        console.log('msg: ',msg);
+        const msg = {sender: $('#username').val(), content: $('#msgSent').val(), type: 'CHAT', receiver: $('#username').val()};
+        console.log('private msg: ',msg);
         stompClient.send('/app/chat/private', {}, JSON.stringify(msg));
     }
 </script>
